@@ -1,0 +1,12 @@
+{
+  "name": "Team Ferreira — Treino",
+  "short_name": "Treino TF",
+  "description": "Treino, dieta e lista de compras — Team Ferreira",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#101014",
+  "theme_color": "#111114",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
