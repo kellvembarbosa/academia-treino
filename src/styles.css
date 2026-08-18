@@ -230,3 +230,25 @@ p.section-sub { color: var(--muted); font-size: 13px; margin-bottom: 16px; }
 @media (min-width: 700px) {
   .ex-media img { max-height: 300px; }
 }
+
+/* ---------- banner de instalação ---------- */
+.install-banner {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  max-width: 640px; margin: 12px auto 0; padding: 10px 14px;
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+  border: 1px solid var(--accent); border-radius: var(--radius);
+  font-size: 13px;
+}
+main .install-banner { margin: 0 0 14px; }
+.install-actions { display: flex; align-items: center; gap: 8px; }
+.install-btn {
+  border: none; border-radius: 9px; padding: 8px 14px; cursor: pointer;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  color: #16100a; font-weight: 700; font-size: 13px;
+}
+.install-close {
+  background: none; border: none; color: var(--muted); font-size: 14px; cursor: pointer; padding: 4px;
+}
+@media (min-width: 700px) {
+  .install-banner { margin-top: 12px; }
+}
