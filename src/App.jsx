@@ -4,7 +4,7 @@ import Calendario from './Calendario.jsx';
 import Dieta from './Dieta.jsx';
 import Compras from './Compras.jsx';
 import Modal from './Modal.jsx';
-import { PLAN } from './data.js';
+import Config from './Config.jsx';
 import { loadState, saveState, isoDate, fmtDur } from './store.js';
 
 const TABS = [
@@ -21,10 +21,13 @@ export default function App() {
   const [state, setState] = useState(loadState);
   const [tab, setTab] = useState('treino');
   const [selectedDow, setSelectedDow] = useState(() => {
+    const st = loadState();
     const t = new Date().getDay();
-    return PLAN[t] ? t : 1;
+    if (st.schedule[t]) return t;
+    return [1, 2, 3, 4, 5, 6, 0].find(d => st.schedule[d]) ?? t;
   });
   const [now, setNow] = useState(Date.now());
+  const [showConfig, setShowConfig] = useState(false);
   const [finishInfo, setFinishInfo] = useState(null);   // segundos da sessão encerrada
   const [installEvt, setInstallEvt] = useState(null);   // beforeinstallprompt guardado
   const [showIosHelp, setShowIosHelp] = useState(false);
@@ -115,11 +118,14 @@ export default function App() {
             <small>Consultoria Esportiva</small>
           </div>
         </div>
-        {state.active && (
-          <div className="timer-chip" onClick={() => setTab('treino')}>
-            <span className="dot" /><span>{fmtDur(timerSec)}</span>
-          </div>
-        )}
+        <div className="topbar-right">
+          {state.active && (
+            <div className="timer-chip" onClick={() => setTab('treino')}>
+              <span className="dot" /><span>{fmtDur(timerSec)}</span>
+            </div>
+          )}
+          <button className="icon-btn" aria-label="Montar minha semana" onClick={() => setShowConfig(true)}>⚙️</button>
+        </div>
       </header>
 
       {showInstallBanner && (
@@ -136,12 +142,13 @@ export default function App() {
         {tab === 'treino' && (
           <Treino state={state} selectedDow={selectedDow} setSelectedDow={setSelectedDow}
             onStart={startSession} onFinish={finishSession}
-            onWeight={setWeight} onToggle={toggleDone} />
+            onWeight={setWeight} onToggle={toggleDone}
+            onOpenConfig={() => setShowConfig(true)} />
         )}
         {tab === 'calendario' && <Calendario state={state} />}
         {tab === 'dieta' && <Dieta />}
         {tab === 'compras' && (
-          <Compras savedOwned={state.owned} onSaveOwned={owned => update(st => { st.owned = owned; })} />
+          <Compras savedOwned={state.ownedQty} onSaveOwned={owned => update(st => { st.ownedQty = owned; })} />
         )}
       </main>
 
@@ -152,6 +159,12 @@ export default function App() {
           </button>
         ))}
       </nav>
+
+      {showConfig && (
+        <Config schedule={state.schedule}
+          onSave={sched => update(st => { st.schedule = sched; })}
+          onClose={() => setShowConfig(false)} />
+      )}
 
       {finishInfo != null && (
         <Modal onClose={() => setFinishInfo(null)}>

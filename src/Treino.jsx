@@ -1,4 +1,4 @@
-import { EXERCISES, PLAN, DOW_SHORT } from './data.js';
+import { EXERCISES, WORKOUTS, DOW_SHORT } from './data.js';
 import { isoDate, fmtDur } from './store.js';
 
 function ExCard({ id, index, isToday, rec, lastWeight, onWeight, onToggle }) {
@@ -37,20 +37,23 @@ function ExCard({ id, index, isToday, rec, lastWeight, onWeight, onToggle }) {
   );
 }
 
-export default function Treino({ state, selectedDow, setSelectedDow, onStart, onFinish, onWeight, onToggle }) {
+export default function Treino({ state, selectedDow, setSelectedDow, onStart, onFinish, onWeight, onToggle, onOpenConfig }) {
   const today = new Date().getDay();
-  const plan = PLAN[selectedDow];
+  const schedule = state.schedule;
+  const workoutId = schedule[selectedDow];
+  const plan = workoutId ? WORKOUTS[workoutId] : null;
   const date = isoDate();
   const isToday = selectedDow === today;
   const sess = state.sessions[date];
 
   const picker = (
     <div className="day-picker">
-      {[1, 2, 3, 4, 5].map(d => (
+      {[1, 2, 3, 4, 5, 6, 0].map(d => (
         <button key={d}
-          className={`day-btn ${d === selectedDow ? 'active' : ''} ${d === today ? 'today-mark' : ''}`}
+          className={`day-btn ${d === selectedDow ? 'active' : ''} ${d === today ? 'today-mark' : ''} ${schedule[d] ? '' : 'rest'}`}
           onClick={() => setSelectedDow(d)}>
-          {DOW_SHORT[d]}
+          <span>{DOW_SHORT[d]}</span>
+          <small>{schedule[d] ? WORKOUTS[schedule[d]].letter : '—'}</small>
         </button>
       ))}
     </div>
@@ -60,7 +63,11 @@ export default function Treino({ state, selectedDow, setSelectedDow, onStart, on
     return (
       <>
         {picker}
-        <div className="rest-note">Hoje é dia de descanso 😴<br />Escolha um dia acima para ver o treino.</div>
+        <div className="rest-note">
+          {isToday ? 'Hoje é dia de descanso 😴' : `${DOW_SHORT[selectedDow]} é dia de descanso 😴`}<br />
+          Escolha um dia acima para ver o treino, ou{' '}
+          <button className="link-btn" onClick={onOpenConfig}>monte sua semana</button>.
+        </div>
       </>
     );
   }
@@ -76,7 +83,7 @@ export default function Treino({ state, selectedDow, setSelectedDow, onStart, on
       {picker}
       <div className="workout-head">
         <div>
-          <h2>{plan.title}</h2>
+          <h2><span className="w-letter">{plan.letter}</span> {plan.title}</h2>
           <div className="sub">{DOW_SHORT[selectedDow]} • {plan.ex.length} exercícios</div>
         </div>
         {isToday && (

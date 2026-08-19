@@ -252,3 +252,60 @@ main .install-banner { margin: 0 0 14px; }
 @media (min-width: 700px) {
   .install-banner { margin-top: 12px; }
 }
+
+/* ---------- semana configurável ---------- */
+.topbar-right { display: flex; align-items: center; gap: 8px; }
+.icon-btn {
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 10px;
+  width: 36px; height: 36px; font-size: 16px; cursor: pointer; display: grid; place-items: center;
+}
+.day-btn { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 7px 0; }
+.day-btn small { font-size: 10px; font-weight: 800; color: var(--accent); }
+.day-btn.active small { color: #16100a; }
+.day-btn.rest small { color: var(--muted); font-weight: 600; }
+.day-btn.rest { opacity: .6; }
+.w-letter {
+  display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  color: #16100a; font-size: 15px; font-weight: 800; vertical-align: 2px; margin-right: 2px;
+}
+.link-btn {
+  background: none; border: none; color: var(--accent); cursor: pointer;
+  font-size: inherit; text-decoration: underline; padding: 0;
+}
+.cfg-count { display: flex; gap: 8px; margin-bottom: 16px; }
+.cfg-count-btn {
+  flex: 1; padding: 10px 0; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer;
+  background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+}
+.cfg-count-btn.active { background: var(--accent); border-color: var(--accent); color: #16100a; }
+.cfg-days { display: flex; flex-direction: column; gap: 7px; margin-bottom: 14px; }
+.cfg-day { display: flex; align-items: center; gap: 10px; }
+.cfg-day.rest { opacity: .65; }
+.cfg-day-name { width: 38px; font-weight: 700; font-size: 13px; color: var(--muted); }
+.cfg-day select {
+  flex: 1; padding: 9px 10px; border-radius: 10px; font-size: 14px;
+  background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+}
+.cfg-hint { font-size: 12px !important; margin-bottom: 14px !important; }
+
+/* ---------- quantidades na lista de compras ---------- */
+.shop-item { flex-wrap: wrap; }
+.shop-item-info { flex: 1; min-width: 110px; display: flex; flex-direction: column; gap: 1px; cursor: pointer; }
+.shop-item-info .need { font-size: 11px; color: var(--muted); }
+.shop-item.owned .need { text-decoration: none; }
+.have-field {
+  display: flex; align-items: center; gap: 5px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 9px; padding: 6px 8px; font-size: 11px; color: var(--muted);
+}
+.have-field input {
+  width: 52px; background: none; border: none; color: var(--text);
+  font-size: 14px; font-weight: 700; outline: none; text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.buy-badge {
+  font-size: 11px; font-weight: 700; color: var(--accent); white-space: nowrap;
+  min-width: 92px; text-align: right; font-variant-numeric: tabular-nums;
+}
+.buy-badge.zero { color: var(--green); }

@@ -1,23 +1,31 @@
 import { useState } from 'react';
-import { SHOPPING } from './data.js';
-import { shoppingText, generatePdf } from './pdf.js';
+import { SHOPPING, fmtQty } from './data.js';
+import { shoppingText, generatePdf, remainingItems } from './pdf.js';
 import Modal from './Modal.jsx';
 
 export default function Compras({ savedOwned, onSaveOwned }) {
-  const [owned, setOwned] = useState(() => new Set(savedOwned));
+  const [owned, setOwned] = useState(() => ({ ...savedOwned }));
   const [modal, setModal] = useState(null); // null | 'ask-save' | 'copied'
 
-  const total = SHOPPING.reduce((n, g) => n + g.items.length, 0);
-  const toBuy = total - owned.size;
+  const toBuy = remainingItems(owned).reduce((n, g) => n + g.items.length, 0);
 
-  const toggle = item => {
-    const next = new Set(owned);
-    next.has(item) ? next.delete(item) : next.add(item);
-    setOwned(next);
+  const setQty = (name, val) => {
+    setOwned(prev => {
+      const next = { ...prev };
+      if (isNaN(val) || val <= 0) delete next[name];
+      else next[name] = val;
+      return next;
+    });
+  };
+
+  // caixinha: alterna entre "tenho tudo" e "não tenho nada"
+  const toggleAll = it => {
+    const have = owned[it.name] ?? 0;
+    setQty(it.name, have >= it.qty ? 0 : it.qty);
   };
 
   const handlePdf = () => {
-    const changed = JSON.stringify([...owned].sort()) !== JSON.stringify([...savedOwned].sort());
+    const changed = JSON.stringify(owned) !== JSON.stringify(savedOwned);
     if (!changed) return generatePdf(owned);
     setModal('ask-save');
   };
@@ -36,18 +44,35 @@ export default function Compras({ savedOwned, onSaveOwned }) {
     <>
       <h2 className="section-title">Lista de compras</h2>
       <p className="shop-intro">
-        Baseada no plano alimentar. Marque o que <b>já tem em casa</b> — esses itens ficam fora do PDF.
-        Ao gerar, você escolhe se salva as marcações para a próxima vez.
+        Quantidades estimadas para <b>1 semana</b> do plano alimentar. Informe quanto <b>já tem em casa</b> —
+        o PDF sai só com o que falta. Sem preencher, vai a quantidade total da semana.
       </p>
       {SHOPPING.map(g => (
         <div className="shop-group" key={g.group}>
           <h3>{g.group}</h3>
-          {g.items.map(item => {
-            const has = owned.has(item);
+          {g.items.map(it => {
+            const have = owned[it.name] ?? 0;
+            const buy = Math.max(0, +(it.qty - have).toFixed(2));
+            const full = have >= it.qty;
             return (
-              <div key={item} className={`shop-item ${has ? 'owned' : ''}`} onClick={() => toggle(item)}>
-                <span className="box">{has ? '✓' : ''}</span>
-                <span className="lbl">{item}</span>
+              <div key={it.name} className={`shop-item ${full ? 'owned' : ''}`}>
+                <span className="box" onClick={() => toggleAll(it)}>{full ? '✓' : ''}</span>
+                <div className="shop-item-info" onClick={() => toggleAll(it)}>
+                  <span className="lbl">{it.name}</span>
+                  <small className="need">
+                    semana: {fmtQty(it.qty, it.unit)}{it.note ? ` • ${it.note}` : ''}
+                  </small>
+                </div>
+                <label className="have-field">
+                  <span>tenho</span>
+                  <input type="number" inputMode="decimal" min="0" step="any" placeholder="0"
+                    value={owned[it.name] ?? ''}
+                    onChange={e => setQty(it.name, parseFloat(e.target.value))} />
+                  <span>{it.unit}</span>
+                </label>
+                <span className={`buy-badge ${buy > 0 ? '' : 'zero'}`}>
+                  {buy > 0 ? `comprar ${fmtQty(buy, it.unit)}` : 'tem tudo ✓'}
+                </span>
               </div>
             );
           })}
@@ -60,11 +85,11 @@ export default function Compras({ savedOwned, onSaveOwned }) {
 
       {modal === 'ask-save' && (
         <Modal onClose={() => setModal(null)}>
-          <h3>Salvar marcações?</h3>
-          <p>Você marcou itens como "já tenho". Quer salvar essas marcações para a próxima lista, ou usar só neste PDF?</p>
+          <h3>Salvar o que você tem?</h3>
+          <p>Você informou quantidades que já tem em casa. Quer salvar para a próxima lista, ou usar só neste PDF?</p>
           <div className="row">
             <button className="btn-ghost" onClick={() => { setModal(null); generatePdf(owned); }}>Só neste PDF</button>
-            <button className="btn-primary" onClick={() => { onSaveOwned([...owned]); setModal(null); generatePdf(owned); }}>Salvar e gerar</button>
+            <button className="btn-primary" onClick={() => { onSaveOwned({ ...owned }); setModal(null); generatePdf(owned); }}>Salvar e gerar</button>
           </div>
           <div className="row"><button className="btn-ghost" onClick={() => setModal(null)}>Cancelar</button></div>
         </Modal>

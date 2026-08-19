@@ -128,13 +128,28 @@ export const EXERCISES = {
   }
 };
 
-// dia da semana (0=dom .. 6=sáb) → treino
-export const PLAN = {
-  1: { title: 'Quadríceps', ex: ['ext', 'legpress45', 'smith', 'legSentado', 'sumoHalter', 'addAbd20'] },
-  2: { title: 'Superiores', ex: ['latRaise', 'frontRaise', 'shoulderPress', 'rearDelt', 'barbellCurl', 'altCurl'] },
-  3: { title: 'Posteriores de coxa', ex: ['seatedCurl', 'hack', 'stiff', 'sumo', 'lyingCurl', 'addAbd12', 'hipThrust'] },
-  4: { title: 'Costas', ex: ['pulldown', 'lowRow', 'oneArmRow', 'straightPulldown'] },
-  5: { title: 'Quadríceps (repetição)', ex: ['ext', 'legpress45', 'smith', 'legSentado', 'sumoHalter', 'addAbd20'] }
+// blocos de treino — a agenda semanal é configurável (ver schedule no estado)
+export const WORKOUTS = {
+  quad: { letter: 'A', title: 'Quadríceps', ex: ['ext', 'legpress45', 'smith', 'legSentado', 'sumoHalter', 'addAbd20'] },
+  sup: { letter: 'B', title: 'Superiores', ex: ['latRaise', 'frontRaise', 'shoulderPress', 'rearDelt', 'barbellCurl', 'altCurl'] },
+  post: { letter: 'C', title: 'Posteriores de coxa', ex: ['seatedCurl', 'hack', 'stiff', 'sumo', 'lyingCurl', 'addAbd12', 'hipThrust'] },
+  costas: { letter: 'D', title: 'Costas', ex: ['pulldown', 'lowRow', 'oneArmRow', 'straightPulldown'] }
+};
+
+// ordem padrão de rotação dos blocos ao montar a semana
+export const WORKOUT_CYCLE = ['quad', 'sup', 'post', 'costas'];
+
+// agenda padrão do plano original: Seg A, Ter B, Qua C, Qui D, Sex A
+export const DEFAULT_SCHEDULE = { 0: null, 1: 'quad', 2: 'sup', 3: 'post', 4: 'costas', 5: 'quad', 6: null };
+
+// dias sugeridos por quantidade de treinos na semana (começando na segunda)
+export const DAYS_PRESET = {
+  2: [1, 4],
+  3: [1, 3, 5],
+  4: [1, 2, 4, 5],
+  5: [1, 2, 3, 4, 5],
+  6: [1, 2, 3, 4, 5, 6],
+  7: [1, 2, 3, 4, 5, 6, 0]
 };
 
 export const DIET = [
@@ -162,12 +177,56 @@ export const DIET = [
   }
 ];
 
+// qty = estimativa para 1 semana seguindo o plano alimentar
 export const SHOPPING = [
-  { group: 'Proteínas', items: ['Ovos', 'Frango (peito)', 'Patinho', 'Peixe', 'Carne magra', 'Iogurte natural'] },
-  { group: 'Carboidratos', items: ['Arroz branco', 'Batata inglesa', 'Banana'] },
-  { group: 'Gorduras boas', items: ['Azeite de oliva', 'Castanhas', 'Pasta de amendoim'] },
-  { group: 'Vegetais e salada', items: ['Folhas para salada', 'Brócolis', 'Abobrinha', 'Cenoura', 'Couve-flor'] },
-  { group: 'Outros', items: ['Café'] }
+  {
+    group: 'Proteínas',
+    items: [
+      { name: 'Ovos', qty: 30, unit: 'un', note: '4/dia no café + ceia' },
+      { name: 'Frango (peito)', qty: 1.5, unit: 'kg', note: 'almoço e jantar' },
+      { name: 'Patinho', qty: 0.7, unit: 'kg' },
+      { name: 'Peixe', qty: 0.7, unit: 'kg' },
+      { name: 'Carne magra', qty: 0.7, unit: 'kg' },
+      { name: 'Iogurte natural', qty: 8, unit: 'un', note: 'lanche + ceia' }
+    ]
+  },
+  {
+    group: 'Carboidratos',
+    items: [
+      { name: 'Arroz branco', qty: 1, unit: 'kg' },
+      { name: 'Batata inglesa', qty: 1, unit: 'kg' },
+      { name: 'Banana', qty: 7, unit: 'un' }
+    ]
+  },
+  {
+    group: 'Gorduras boas',
+    items: [
+      { name: 'Azeite de oliva', qty: 1, unit: 'un', note: 'garrafa dura semanas' },
+      { name: 'Castanhas', qty: 150, unit: 'g' },
+      { name: 'Pasta de amendoim', qty: 1, unit: 'pote' }
+    ]
+  },
+  {
+    group: 'Vegetais e salada',
+    items: [
+      { name: 'Folhas para salada', qty: 2, unit: 'maços' },
+      { name: 'Brócolis', qty: 1, unit: 'un' },
+      { name: 'Abobrinha', qty: 1, unit: 'un' },
+      { name: 'Cenoura', qty: 3, unit: 'un' },
+      { name: 'Couve-flor', qty: 1, unit: 'un' }
+    ]
+  },
+  {
+    group: 'Outros',
+    items: [
+      { name: 'Café', qty: 1, unit: 'pct' }
+    ]
+  }
 ];
+
+export function fmtQty(q, unit) {
+  const n = Number.isInteger(q) ? q : String(q).replace('.', ',');
+  return `${n} ${unit}`;
+}
 
 export const DOW_SHORT = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];

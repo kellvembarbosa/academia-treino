@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { PLAN } from './data.js';
+import { WORKOUTS } from './data.js';
 import { isoDate, fmtDur } from './store.js';
 
 export default function Calendario({ state }) {
@@ -20,7 +20,7 @@ export default function Calendario({ state }) {
     const dow = dt.getDay();
     const sess = state.sessions[iso];
     const trained = sess && (sess.duration != null || Object.values(sess.ex || {}).some(e => e.done));
-    const scheduled = !!PLAN[dow];
+    const scheduled = !!state.schedule[dow];
     const past = iso < todayIso;
 
     let cls = '', extra = null;

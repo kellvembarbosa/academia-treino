@@ -1,20 +1,31 @@
-import { SHOPPING } from './data.js';
+import { SHOPPING, fmtQty } from './data.js';
 
-export function shoppingText(owned) {
-  let out = '🛒 LISTA DE COMPRAS — Plano alimentar\n';
-  for (const g of SHOPPING) {
-    const items = g.items.filter(i => !owned.has(i));
-    if (!items.length) continue;
-    out += `\n${g.group.toUpperCase()}\n` + items.map(i => `• ${i}`).join('\n') + '\n';
+// quanto falta comprar de cada item: necessidade semanal − o que já tem
+export function remainingItems(ownedQty) {
+  return SHOPPING.map(g => ({
+    group: g.group,
+    items: g.items
+      .map(it => {
+        const have = ownedQty[it.name] ?? 0;
+        const buy = Math.max(0, +(it.qty - have).toFixed(2));
+        return { ...it, buy };
+      })
+      .filter(it => it.buy > 0)
+  })).filter(g => g.items.length);
+}
+
+export function shoppingText(ownedQty) {
+  let out = '🛒 LISTA DE COMPRAS — 1 semana do plano alimentar\n';
+  for (const g of remainingItems(ownedQty)) {
+    out += `\n${g.group.toUpperCase()}\n` +
+      g.items.map(it => `• ${it.name} — ${fmtQty(it.buy, it.unit)}`).join('\n') + '\n';
   }
   return out;
 }
 
-export function generatePdf(owned) {
+export function generatePdf(ownedQty) {
   const dateStr = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
-  const groups = SHOPPING
-    .map(g => ({ ...g, items: g.items.filter(i => !owned.has(i)) }))
-    .filter(g => g.items.length);
+  const groups = remainingItems(ownedQty);
 
   document.getElementById('pdf-frame')?.remove();
   const frame = document.createElement('iframe');
@@ -33,15 +44,18 @@ export function generatePdf(owned) {
     header small { color:#777; }
     h2 { font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; color:#d96f0a; margin: 20px 0 8px; }
     ul { list-style:none; }
-    li { padding: 7px 0; border-bottom: 1px solid #eee; font-size: 15px; }
+    li { padding: 7px 0; border-bottom: 1px solid #eee; font-size: 15px; display:flex; justify-content:space-between; }
+    li b { color:#d96f0a; font-variant-numeric: tabular-nums; }
     li::before { content:'☐  '; color:#bbb; }
+    li span { flex:1; }
     footer { margin-top: 30px; font-size: 11px; color:#999; }
     @media print { body { padding: 10px 0; } }
   </style></head><body>
-    <header><h1>🛒 Lista de Compras</h1><small>Plano alimentar — Team Ferreira • ${dateStr}</small></header>
-    ${groups.map(g => `<h2>${g.group}</h2><ul>${g.items.map(i => `<li>${i}</li>`).join('')}</ul>`).join('')}
+    <header><h1>🛒 Lista de Compras</h1><small>1 semana do plano alimentar — Team Ferreira • ${dateStr}</small></header>
+    ${groups.map(g => `<h2>${g.group}</h2><ul>${g.items.map(it =>
+      `<li><span>${it.name}</span><b>${fmtQty(it.buy, it.unit)}</b></li>`).join('')}</ul>`).join('')}
     ${groups.length ? '' : '<p>Tudo em casa — nada para comprar! 🎉</p>'}
-    <footer>Gerado pelo app de treino • use "Salvar como PDF" na tela de impressão para compartilhar.</footer>
+    <footer>Quantidades estimadas para 7 dias do plano • use "Salvar como PDF" na tela de impressão para compartilhar.</footer>
   </body></html>`);
   doc.close();
   setTimeout(() => {
