@@ -239,3 +239,33 @@ export function fmtQty(q, unit) {
 }
 
 export const DOW_SHORT = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+
+// séries estruturadas para o modo guiado: r = repetições, d = descanso (s) após a série
+const S = (n, r, d, nota) => Array.from({ length: n }, () => (nota ? { r, d, nota } : { r, d }));
+
+const SETS = {
+  ext: [{ r: '10', d: 40 }, { r: '10', d: 35 }, { r: '8–10', d: 30 }, { r: '6–10', d: 30 }],
+  legpress45: [...S(2, '10', 40), ...S(3, '5', 15), { r: '5', d: 45, nota: 'depois reduz a carga' }, ...S(4, '10', 20)],
+  smith: [{ r: '20', d: 40 }, { r: '10', d: 45, nota: '+20% de carga' }, { r: '10', d: 30, nota: '+20% de carga' }, { r: '20', d: 40, nota: '−40% de carga' }],
+  legSentado: [...S(4, '10', 30, 'pés fechados'), { r: '10', d: 30, nota: 'depois: sequência de passadas' }],
+  sumoHalter: S(3, '20', 45),
+  addAbd20: S(5, '20 + 20', 30, 'adutora e abdutora'),
+  latRaise: [...S(3, '10–15', 30, 'aquecimento leve'), ...S(4, '10', 40, 'peso maior')],
+  frontRaise: S(4, '8–10', 40, '8 com dificuldade + 2'),
+  shoulderPress: S(4, '10–12', 40),
+  rearDelt: S(5, '20', 30),
+  barbellCurl: S(3, '15', 40, 'cadência 3s sobe / 3s desce'),
+  altCurl: S(3, '12–15', 40),
+  seatedCurl: S(4, '20', 40, '10 segurando 2s + 10 diretas'),
+  hack: S(4, '10', 40, '+20% de carga por série'),
+  stiff: S(4, '10', 40),
+  sumo: S(3, '20', 45),
+  lyingCurl: S(4, '10', 40, 'controla a fase concêntrica'),
+  addAbd12: S(4, '10–12 + 10–12', 30, 'adutora e abdutora'),
+  hipThrust: S(4, '10–12', 40, 'progressão de cargas'),
+  pulldown: [...S(2, '20', 30, 'aquecimento leve'), ...S(3, '10–12', 40, 'carga maior')],
+  lowRow: S(4, '10–12', 40, 'puxada abaixo do umbigo'),
+  oneArmRow: S(3, '10–12', 40, 'cada lado'),
+  straightPulldown: S(3, '10', 40)
+};
+for (const id in SETS) EXERCISES[id].sets = SETS[id];

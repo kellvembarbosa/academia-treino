@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { EXERCISES, WORKOUTS, DOW_SHORT } from './data.js';
 import { isoDate, fmtDur } from './store.js';
+import Modal from './Modal.jsx';
 
 function ExCard({ id, index, isToday, rec, lastWeight, onWeight, onToggle }) {
   const ex = EXERCISES[id];
@@ -37,7 +39,8 @@ function ExCard({ id, index, isToday, rec, lastWeight, onWeight, onToggle }) {
   );
 }
 
-export default function Treino({ state, selectedDow, setSelectedDow, onStart, onFinish, onWeight, onToggle, onOpenConfig }) {
+export default function Treino({ state, selectedDow, setSelectedDow, onStart, onFinish, onWeight, onToggle, onOpenConfig, onResume }) {
+  const [askMode, setAskMode] = useState(false);
   const today = new Date().getDay();
   const schedule = state.schedule;
   const workoutId = schedule[selectedDow];
@@ -88,10 +91,26 @@ export default function Treino({ state, selectedDow, setSelectedDow, onStart, on
         </div>
         {isToday && (
           activeToday
-            ? <button className="session-btn stop" onClick={onFinish}>■ Finalizar</button>
-            : <button className="session-btn" onClick={() => onStart(selectedDow)}>▶ Iniciar treino</button>
+            ? (
+              <div className="session-btns">
+                <button className="session-btn" onClick={onResume}>▶ Retomar</button>
+                <button className="session-btn stop" onClick={onFinish}>■ Finalizar</button>
+              </div>
+            )
+            : <button className="session-btn" onClick={() => setAskMode(true)}>▶ Iniciar treino</button>
         )}
       </div>
+
+      {askMode && (
+        <Modal onClose={() => setAskMode(false)}>
+          <h3>Como vai treinar hoje?</h3>
+          <p>Em dupla, cada série tem a vez do parceiro — o app cronometra o revezamento e o tempo estimado dobra certinho.</p>
+          <div className="row">
+            <button className="btn-ghost" onClick={() => { setAskMode(false); onStart(selectedDow, false); }}>💪 Sozinho</button>
+            <button className="btn-primary" onClick={() => { setAskMode(false); onStart(selectedDow, true); }}>🤝 Em dupla</button>
+          </div>
+        </Modal>
+      )}
 
       {finishedToday && (
         <div className="done-banner">

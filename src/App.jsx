@@ -5,6 +5,8 @@ import Dieta from './Dieta.jsx';
 import Compras from './Compras.jsx';
 import Modal from './Modal.jsx';
 import Config from './Config.jsx';
+import Player from './Player.jsx';
+import { WORKOUTS } from './data.js';
 import { loadState, saveState, isoDate, fmtDur } from './store.js';
 
 const TABS = [
@@ -28,6 +30,7 @@ export default function App() {
   });
   const [now, setNow] = useState(Date.now());
   const [showConfig, setShowConfig] = useState(false);
+  const [playerOpen, setPlayerOpen] = useState(false);
   const [finishInfo, setFinishInfo] = useState(null);   // segundos da sessão encerrada
   const [installEvt, setInstallEvt] = useState(null);   // beforeinstallprompt guardado
   const [showIosHelp, setShowIosHelp] = useState(false);
@@ -61,10 +64,13 @@ export default function App() {
     return st.sessions[date];
   };
 
-  const startSession = dow => update(st => {
-    st.active = { date: isoDate(), dow, start: Date.now() };
-    ensureSession(st, isoDate(), dow);
-  });
+  const startSession = (dow, duo = false) => {
+    update(st => {
+      st.active = { date: isoDate(), dow, start: Date.now(), duo };
+      ensureSession(st, isoDate(), dow);
+    });
+    setPlayerOpen(true);
+  };
 
   const finishSession = () => {
     const sec = Math.floor((Date.now() - state.active.start) / 1000);
@@ -74,7 +80,14 @@ export default function App() {
       st.active = null;
     });
     setFinishInfo(sec);
+    setPlayerOpen(false);
   };
+
+  const markDone = id => update(st => {
+    const s = ensureSession(st, isoDate(), st.active?.dow ?? selectedDow);
+    if (!s.ex[id]) s.ex[id] = {};
+    s.ex[id].done = true;
+  });
 
   const setWeight = (id, val) => update(st => {
     const s = ensureSession(st, isoDate(), selectedDow);
@@ -143,7 +156,8 @@ export default function App() {
           <Treino state={state} selectedDow={selectedDow} setSelectedDow={setSelectedDow}
             onStart={startSession} onFinish={finishSession}
             onWeight={setWeight} onToggle={toggleDone}
-            onOpenConfig={() => setShowConfig(true)} />
+            onOpenConfig={() => setShowConfig(true)}
+            onResume={() => setPlayerOpen(true)} />
         )}
         {tab === 'calendario' && <Calendario state={state} />}
         {tab === 'dieta' && <Dieta />}
@@ -159,6 +173,20 @@ export default function App() {
           </button>
         ))}
       </nav>
+
+      {playerOpen && state.active && state.schedule[state.active.dow] && (
+        <Player
+          workout={WORKOUTS[state.schedule[state.active.dow]]}
+          duo={!!state.active.duo}
+          session={state.sessions[state.active.date]}
+          lastWeights={state.lastWeights}
+          timerSec={timerSec}
+          onWeight={setWeight}
+          onMarkDone={markDone}
+          onFinishAll={finishSession}
+          onExit={() => setPlayerOpen(false)}
+        />
+      )}
 
       {showConfig && (
         <Config schedule={state.schedule}
