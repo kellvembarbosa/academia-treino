@@ -309,3 +309,16 @@ main .install-banner { margin: 0 0 14px; }
   min-width: 92px; text-align: right; font-variant-numeric: tabular-nums;
 }
 .buy-badge.zero { color: var(--green); }
+
+/* ---------- fórmulas de semana ---------- */
+.cfg-formulas { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 16px; }
+.cfg-formula {
+  display: flex; flex-direction: column; gap: 2px; text-align: left;
+  padding: 9px 11px; border-radius: 10px; cursor: pointer;
+  background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+}
+.cfg-formula b { font-size: 12.5px; }
+.cfg-formula small { font-size: 10.5px; color: var(--muted); }
+.cfg-formula.active { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, var(--surface2)); }
+.cfg-formula.active small { color: var(--accent); }
+.modal { max-height: 88dvh; overflow-y: auto; }

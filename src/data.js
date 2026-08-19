@@ -139,6 +139,15 @@ export const WORKOUTS = {
 // ordem padrão de rotação dos blocos ao montar a semana
 export const WORKOUT_CYCLE = ['quad', 'sup', 'post', 'costas'];
 
+// fórmulas de ordenação: qual bloco abre a semana e como o resto rotaciona
+export const FORMULAS = [
+  { id: 'pernas', name: '🦵 Pernas primeiro', desc: 'A B C D — clássica do plano', order: ['quad', 'sup', 'post', 'costas'] },
+  { id: 'sup', name: '💪 Superiores primeiro', desc: 'B A D C — começa com ombros/braços', order: ['sup', 'quad', 'costas', 'post'] },
+  { id: 'costas', name: '🔙 Costas primeiro', desc: 'D A B C — começa puxando', order: ['costas', 'quad', 'sup', 'post'] },
+  { id: 'post', name: '🍑 Posteriores primeiro', desc: 'C B A D — posterior de coxa abre', order: ['post', 'sup', 'quad', 'costas'] },
+  { id: 'semperna', name: '🚫🦵 Pernas no fim', desc: 'B D A C — semana termina nas pernas', order: ['sup', 'costas', 'quad', 'post'] }
+];
+
 // agenda padrão do plano original: Seg A, Ter B, Qua C, Qui D, Sex A
 export const DEFAULT_SCHEDULE = { 0: null, 1: 'quad', 2: 'sup', 3: 'post', 4: 'costas', 5: 'quad', 6: null };
 

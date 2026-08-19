@@ -1,32 +1,53 @@
 import { useState } from 'react';
-import { WORKOUTS, WORKOUT_CYCLE, DAYS_PRESET, DOW_SHORT } from './data.js';
+import { WORKOUTS, FORMULAS, DAYS_PRESET, DOW_SHORT } from './data.js';
 import Modal from './Modal.jsx';
 
-// monta agenda automática: n dias na semana, blocos em rotação A→B→C→D
-function autoSchedule(nDays) {
+// monta agenda automática: n dias na semana, blocos na ordem da fórmula escolhida
+function autoSchedule(nDays, order) {
   const sched = { 0: null, 1: null, 2: null, 3: null, 4: null, 5: null, 6: null };
   DAYS_PRESET[nDays].forEach((dow, i) => {
-    sched[dow] = WORKOUT_CYCLE[i % WORKOUT_CYCLE.length];
+    sched[dow] = order[i % order.length];
   });
   return sched;
 }
 
 export default function Config({ schedule, onSave, onClose }) {
   const [draft, setDraft] = useState({ ...schedule });
+  const [formula, setFormula] = useState('pernas');
   const nDays = Object.values(draft).filter(Boolean).length;
 
   const setDay = (dow, val) => setDraft(d => ({ ...d, [dow]: val || null }));
 
+  const applyCount = (n, fid = formula) => {
+    const f = FORMULAS.find(x => x.id === fid) || FORMULAS[0];
+    setDraft(autoSchedule(n, f.order));
+  };
+
+  const applyFormula = fid => {
+    setFormula(fid);
+    applyCount(nDays >= 2 ? nDays : 5, fid);
+  };
+
   return (
     <Modal onClose={onClose}>
       <h3>Montar minha semana 🗓️</h3>
-      <p>Quantos dias por semana você vai treinar? Escolha para distribuir automaticamente, depois ajuste cada dia como preferir.</p>
+      <p>Quantos dias por semana você vai treinar? Escolha a quantidade e a fórmula — depois ajuste cada dia como preferir.</p>
 
       <div className="cfg-count">
         {[2, 3, 4, 5, 6, 7].map(n => (
           <button key={n} className={`cfg-count-btn ${n === nDays ? 'active' : ''}`}
-            onClick={() => setDraft(autoSchedule(n))}>
+            onClick={() => applyCount(n)}>
             {n}
+          </button>
+        ))}
+      </div>
+
+      <div className="cfg-formulas">
+        {FORMULAS.map(f => (
+          <button key={f.id} className={`cfg-formula ${f.id === formula ? 'active' : ''}`}
+            onClick={() => applyFormula(f.id)}>
+            <b>{f.name}</b>
+            <small>{f.desc}</small>
           </button>
         ))}
       </div>
@@ -49,7 +70,7 @@ export default function Config({ schedule, onSave, onClose }) {
         {nDays === 0
           ? 'Nenhum dia de treino selecionado.'
           : `${nDays} dia${nDays > 1 ? 's' : ''} de treino por semana.`}
-        {' '}Pode repetir bloco (ex.: Quadríceps 2×) ou começar a semana pelo que preferir.
+        {' '}Os selects acima mandam: pode repetir bloco ou montar fora de qualquer fórmula.
       </p>
 
       <div className="row">
