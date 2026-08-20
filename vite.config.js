@@ -7,6 +7,7 @@ const BASE = process.env.VERCEL ? '/' : '/academia-treino/';
 
 export default defineConfig({
   base: BASE,
+  preview: { port: Number(process.env.PORT) || 4173, strictPort: false },
   plugins: [
     react(),
     VitePWA({

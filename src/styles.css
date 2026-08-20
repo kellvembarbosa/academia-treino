@@ -371,3 +371,8 @@ main .install-banner { margin: 0 0 14px; }
 .player-rest b { font-size: 34px; font-variant-numeric: tabular-nums; color: var(--green); }
 .player-rest.partner b { color: var(--accent); }
 .session-btns { display: flex; gap: 8px; }
+
+/* fix: weight-field tem flex:1 (layout de linha); no player (coluna) esticava na vertical */
+.player-weight { flex: 0 0 auto; width: 100%; }
+.player-body .ex-media { flex: 0 0 auto; min-height: 120px; }
+.player-body { justify-content: flex-start; }
